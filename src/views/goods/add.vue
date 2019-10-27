@@ -43,7 +43,7 @@
                                             {{item.typeName}}
                                         </li>
                                     </ul>
-                                    <div class="categoryList" v-if="childCategoryList == 0">
+                                    <div class="category-list" v-if="childCategoryList.length == 0">
                                         <span class="empty">暂无分类</span>
                                     </div>
                                 </div>
@@ -56,7 +56,70 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="stepActive == 1"></div>
+                <div v-if="stepActive == 1">
+                    <div class="flex">
+                        <div>
+                            <div class="form-label">基本信息</div>
+                            <div class="form-label label2">库存规格</div>
+                        </div>
+                        <el-form
+                                :model="ruleForm"
+                                :rules="rules"
+                                ref="ruleForm"
+                                label-width="100px"
+                                class="form-info"
+                        >
+                            <el-form-item label="商品分类:">
+                                <span class="font-14 green bold" @click="stepActive = 0">{{categoryName}}</span>
+                                <span
+                                        class="font-14 green bold"
+                                        v-show="childCategoryName"
+                                >{{' > ' + childCategoryName}}</span>
+                            </el-form-item>
+                            <el-form-item label="商品名称:" prop="goodsName">
+                                <el-input v-model="ruleForm.goodsName"></el-input>
+                            </el-form-item>
+                            <el-form-item label="副标题:" prop="goodsSubtitle">
+                                <el-input v-model="ruleForm.goodsSubtitle"></el-input>
+                            </el-form-item>
+                            <el-form-item label="商品品牌:" prop="brandId">
+                                <el-select v-model="ruleForm.brandId" placeholder="请选择品牌">
+                                    <el-option :label="item.name" :value="String(item.id)" v-for="item in brandList"></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="商品介绍:" prop="goodsDesc">
+                                <el-input v-model="ruleForm.goodsDesc" type="textarea"></el-input>
+                            </el-form-item>
+                            <el-form-item label="商品货号:" prop="goodsNo">
+                                <el-input v-model="ruleForm.goodsNo" type="number"></el-input>
+                                <p class="form-tips">如果您不输入商品货号,系统将自动生成一个唯一的货号</p>
+                            </el-form-item>
+                            <el-form-item label="商品售价:" prop="goodsPrice">
+                                <el-input v-model="ruleForm.goodsPrice" type="number"></el-input>
+                            </el-form-item>
+                            <el-form-item label="市场价:" prop="marketPrice">
+                                <el-input v-model="ruleForm.marketPrice" type="number"></el-input>
+                            </el-form-item>
+                            <el-form-item label="商品库存:" prop="goodsStock">
+                                <el-input v-model="ruleForm.goodsStock" type="number"></el-input>
+                                <p class="form-tips">改设置只对单品有效, 当商品存在多规格货品是为不可编辑状态,库存数值取决于货品数量</p>
+                            </el-form-item>
+                            <el-form-item label="库存预警值:" prop="goodsWarning">
+                                <el-input v-model="ruleForm.goodsWarning" type="number"></el-input>
+                            </el-form-item>
+                            <el-form-item label="计量单位:" prop="goodsUnit">
+                                <el-input v-model="ruleForm.goodsUnit" type="number"></el-input>
+                            </el-form-item>
+                            <el-form-item label="商品重量:" prop="goodsWeight">
+                                <el-input v-model="ruleForm.goodsWeight" type="number"></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button @click="stepActive = 0">上一步,选择商品分类</el-button>
+                                <el-button type="primary" @click="submitForm('ruleForm')">下一步,填写商品属性</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+                </div>
                 <div v-if="stepActive == 2"></div>
                 <div v-if="stepActive == 3"></div>
             </div>
@@ -71,6 +134,26 @@
     import pagination from "../../components/pagination";
     import {quillEditor} from "vue-quill-editor";
     import mixin from "../../util/mixin";
+
+    const toolbarOptions = [
+        ["bold", "italic", "underline", "strike"], // toggled buttons
+        ["blockquote", "code-block"],
+
+        [{ header: 1 }, { header: 2 }], // custom button values
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ script: "sub" }, { script: "super" }], // superscript/subscript
+        [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+        [{ direction: "rtl" }], // text direction
+
+        [{ size: ["small", false, "large", "huge"] }], // custom dropdown
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+
+        [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+        [{ font: [] }],
+        [{ align: [] }],
+        ["link", "image", "video"],
+        ["clean"] // remove formatting button
+    ];
 
     export default {
         name: "add",
@@ -88,6 +171,13 @@
                     callback(new Error('商品库存最大值为99999'));
                 } else if (value < 0) {
                     callback(new Error("商品库存不能小于0"));
+                } else {
+                    callback();
+                }
+            };
+            let validGoodsWeight = (rule, value, callback) => {
+                if (value < 0) {
+                    callback(new Error("商品重量不能小于0"));
                 } else {
                     callback();
                 }
@@ -139,7 +229,13 @@
                     goodsSubtitle: [
                         {require: true, message: "请输入副标题", trigger: 'blur'},
                         {max: 20, message: "长度必须小于20个字符"}
-                    ]
+                    ],
+                    brandId: [{require: true, message: "请选择品牌", trigger: 'change'}],
+                    goodsDesc: [{require: true, message: "请输入商品介绍", trigger: "blur"}],
+                    goodsPrice: [{require: true, message: "请输入商品售价", trigger: "blur"}],
+                    goodsStock: [{require: true, validator: validGoodsStock, trigger: "blur"}],
+                    goodsWarning: [{require: true, message: "请输入库存预警值", trigger: "blur"}],
+                    goodsWeight: [{require: true, validator: validGoodsWeight, trigger: "blur"}]
                 },
                 typeList: [],
                 goodsTypeId: '',
@@ -155,16 +251,166 @@
                 albumList: [],
                 albumId: '',
                 albumImgList: [],
+                oldStyleId: "",
+                oldPropList: [],
+                oldCheckProp: [],
+                oldPropHeader: [],
+                oldCheckPropList: [],
+                oldPropSpecList: [],
+                oldMerchantParamDetailIds: {},
+                headerList: [],
+                childHeaderList: [],
+                newFormData: {},
+                quillUpdateImg: false,
+                serverUtl: "https://ls.diandianyuyue.com",
+                editorOption: {
+                    placeholder: "",
+                    theme: "snow",
+                    modules: {
+                        toolbar: {
+                            container: toolbarOptions,
+                            handlers: {
+                                image: function (value) {
+                                    if (value) {
+                                        document.querySelector("#uploadEditor input").click();
+                                    } else {
+                                        this.quill.format("image", false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         methods: {
             submit1() {
+                this.stepActive = 1;
+            },
+            submitForm(val) {
 
             },
-            getChildCategory(item) {
-
-            }
-        }
+            getChildCategory(data) {
+                this.ruleForm.childId = data.id;
+                this.childCategoryName = data.typeName;
+            },
+            getCategory(data) {
+                console.log(data);
+                console.log(this.ruleForm);
+                if (this.ruleForm.typeId != data.id) {
+                    this.ruleForm.typeId = data.id;
+                    this.ruleForm.childId = "";
+                    this.childCategoryList = data.list;
+                    this.categoryName = data.typeName;
+                }
+            },
+        },
+        mounted() {
+            this.loading = true;
+            this.$http.post("merchantGoodsType/query_goods_type_tree").then(res => {
+                this.categoryList = res;
+                // console.log(res);
+                this.$http.post("merchant_goods_brand/query_list").then(res => {
+                    this.brandList = res;
+                    // console.log(res);
+                    this.$http.post("merchantGoodsStyle/merchant_goods_style_list_page", {
+                        currentPage: 1,
+                        pageSize: 100
+                    }).then(res => {
+                        this.typeList = res.list;
+                        this.$http.post("merchant_goods_galleries/query_for_page", {
+                            currentPage: 1,
+                            pageSize: 100
+                        }).then(res => {
+                            this.albumList = res.list;
+                            this.$http.post("merchantNavigation/query_navigation_type_tree").then(res => {
+                                this.headerList = res;
+                                // console.log(this.$route);
+                                if (this.$route.query.id) {
+                                    this.isAdd = false;
+                                    this.$http.post("merchantGoods/merchant_goods_by_id", {
+                                        id: this.$route.query.id
+                                    }).then(res => {
+                                        this.categoryName = res.typeName;
+                                        this.childCategoryName = res.childName;
+                                        this.$set(this.ruleForm, "typeId", res.typeId); //直接设置this.ruleForm.typeId的值
+                                        if (String(res.childId)) {
+                                            this.$set(this.ruleForm, 'childId', res.childId); //直接设置this.ruleForm.childId的值
+                                            this.categoryList.map(item => {
+                                                if (item.id == res.typeId) {
+                                                    this.childCategoryList = item.list;
+                                                }
+                                            });
+                                        }
+                                        this.$set(this.ruleForm, "goodsName", res.goodsName);
+                                        this.$set(this.ruleForm, "goodsSubtitle", res.goodsSubtitle);
+                                        this.$set(this.ruleForm, "brandId", res.brandId);
+                                        this.$set(this.ruleForm, "goodsDesc", res.goodsDesc);
+                                        this.$set(this.ruleForm, "goodsNo", res.goodsNo);
+                                        this.$set(this.ruleForm, "goodsPrice", res.goodsPrice);
+                                        this.$set(this.ruleForm, "marketPrice", res.marketPrice);
+                                        this.$set(this.ruleForm, "goodsStock", res.goodsStock);
+                                        this.$set(this.ruleForm, "goodsWarning", res.goodsWarning);
+                                        this.$set(this.ruleForm, "goodsWeight", res.goodsWeight);
+                                        this.$set(this.ruleForm, "goodsMobileImg", res.goodsMobileImg);
+                                        this.$set(this.ruleForm, "merchantParamDetailIds", res.merchantParamDetailIds);
+                                        this.$set(this.ruleForm, "styleId", res.styleId);
+                                        this.$set(this.ruleForm, "navId", res.navId);
+                                        this.$set(this.ruleForm, "navChildId", res.navChildId);
+                                        if (String(res.navId)) {
+                                            this.headerList.map(item => {
+                                                if (item.id == res.navId) {
+                                                    this.childHeaderList = item.list;
+                                                }
+                                            });
+                                        }
+                                        this.paramsList = res.merchantParamDetailIds.merchantParamDetails;
+                                        this.propSpecList = res.merchantGoodsTypePropertyList;
+                                        this.$http.post("merchantGoodsProperty/merchant_goods_property_list_page", {
+                                            styleId: res.styleId,
+                                            currentPage: 1,
+                                            pageSize: 100
+                                        }).then(data => {
+                                            let list = [];
+                                            data.list.map(item => {
+                                                list.push({
+                                                    name: item.propertyName,
+                                                    value: item.propertyList.split(",")
+                                                });
+                                            });
+                                            this.propList = list;
+                                            this.checkPropList = res.map;
+                                            let checkProp = [];
+                                            let propHeader = [];
+                                            this.checkPropList.map(item => {
+                                                propHeader.push(item.name);
+                                                item.value.map(prop => {
+                                                    checkProp.push(item.name + prop);
+                                                });
+                                            });
+                                            this.checkProp = checkProp;
+                                            this.propHeader = propHeader;
+                                            this.oldStyleId = res.styleId;
+                                            this.oldPropList = list;
+                                            this.oldCheckProp = checkProp;
+                                            this.oldCheckPropList = res.map;
+                                            this.oldPropHeader = propHeader;
+                                            this.oldPropSpecList = res.merchantGoodsTypePropertyList;
+                                            this.oldMerchantParamDetailIds = res.merchantParamDetailIds;
+                                            if (res.goodsImg) {
+                                                this.imgList = res.goodsImg.split(",");
+                                            }
+                                            this.loading = false;
+                                        });
+                                    });
+                                }
+                                this.loading = false;
+                            });
+                        });
+                    });
+                });
+            });
+        },
     }
 </script>
 
@@ -175,5 +421,94 @@
         > div {
             width: 100%;
         }
+        .form-label {
+            width: 175px;
+            height: 50px;
+            line-height: 50px;
+            color: #fff;
+            padding: 0 20px;
+            box-sizing: border-box;
+            background-color: $green;
+            position: relative;
+            margin-right: 100px;
+            &::after {
+                content: "";
+                display: block;
+                position: absolute;
+                top: 0;
+                right: -50px;
+                border: 25px solid transparent;
+                border-left-color: $green;
+            }
+        }
+        .select-category {
+            margin-top: 40px;
+            .title {
+                height: 48px;
+                line-height: 48px;
+                border: $border;
+                border-bottom-color: transparent;
+                padding: 0 24px;
+                box-sizing: border-box;
+            }
+            img {
+                margin: 0 36px;
+            }
+            .flex-1 {
+                max-width: 380px;
+            }
+            .category-list {
+                height: 380px;
+                position: relative;
+                border: $border;
+                box-sizing: border-box;
+                overflow: auto;
+                li {
+                    height: 48px;
+                    line-height: 48px;
+                    color: $gray;
+                    border-bottom: $border;
+                    padding: 0 24px;
+                    cursor: pointer;
+                    i {
+                        margin-top: 17px;
+                    }
+                }
+                .active {
+                    background-color: $green;
+                    color: #ffffff;
+                }
+                .empty {
+                    position: absolute;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    color: $gray;
+                }
+            }
+        }
+        .tips {
+            font-size: 14px;
+            margin: 20px 0;
+            span {
+                color: $green;
+            }
+        }
+        .form-tips {
+            font-size: 12px;
+            color: $gray;
+            line-height: 16px;
+            margin-top: 5px;
+        }
+    }
+    .label2 {
+        margin-top: 274px;
+    }
+    .form-info
+    .form-prop {
+        width: 500px;
+    }
+    .text-center {
+        margin-top: 20px;
     }
 </style>
