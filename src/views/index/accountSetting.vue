@@ -121,9 +121,6 @@
 </script>
 
 <style scoped lang="scss">
-    .accountSetting {
-        margin-top: 60px;
-    }
     .el-form-item__error {
         left: 26px;
     }

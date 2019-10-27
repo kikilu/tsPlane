@@ -212,13 +212,6 @@
 </script>
 
 <style scoped lang="scss">
-    .systemIndex {
-        margin-top: 60px;
-        li {
-            list-style: none;
-        }
-    }
-
     .row-top {
         > div {
             flex: 1;

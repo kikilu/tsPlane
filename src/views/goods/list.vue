@@ -289,9 +289,6 @@
 
 <style scoped lang="scss">
     @import "~@/assets/css/common";
-    .list {
-        margin-top: 50px;
-    }
     .filter-wrap {
         border: $border;
         margin-bottom: 24px;

@@ -72,9 +72,6 @@
 </script>
 
 <style scoped lang="scss">
-   .systemInfo {
-      margin-top: 60px;
-   }
    .table-middle {
       width: 70%;
       margin: 0 auto;

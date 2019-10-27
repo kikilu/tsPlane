@@ -120,18 +120,6 @@
             align-items: center;
             justify-content: flex-end;
             padding-right: 30px;
-            /*.avatar {*/
-            /*    width: 40px;*/
-            /*    height: 40px;*/
-            /*    border-radius: 50%;*/
-            /*}*/
-            /** {*/
-            /*    margin-left: 20px;*/
-            /*}*/
-            /*span {*/
-            /*    color: #ffffff;*/
-            /*    font-size: 18px;*/
-            /*}*/
         }
     }
     .main {
