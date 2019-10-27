@@ -111,6 +111,8 @@ export default {
 
         //搜索
         search() {
+            this.currentPage = 1;
+            this.getList();
         },
 
         //上传单张图片

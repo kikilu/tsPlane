@@ -307,7 +307,10 @@
             margin-right: 0;
         }
     }
-
+        .search-input {
+            width: 200px;
+            margin: 0 15px;
+        }
     .box-title {
         padding-right: 30px;
     }
