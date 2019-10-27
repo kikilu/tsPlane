@@ -214,7 +214,6 @@
 <style scoped lang="scss">
     .systemIndex {
         margin-top: 60px;
-        padding: 0;
         li {
             list-style: none;
         }

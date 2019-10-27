@@ -168,6 +168,7 @@
             flex: 1;
             min-width: 1040px;
             overflow: auto;
+            padding: 0 25px;
         }
     }
 </style>
