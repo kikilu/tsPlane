@@ -1,5 +1,5 @@
 {
-  "name": "ls-admin",
+  "name": "vue-cli",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,39 +8,37 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "core-js": "^2.6.5",
-    "vue": "^2.6.10"
+    "@vue/cli": "^3.12.0",
+    "@vue/cli-service-global": "^3.12.0",
+    "area-data": "^5.0.6",
+    "axios": "^0.19.0",
+    "babel-polyfill": "^6.26.0",
+    "css-loader": "^3.2.0",
+    "echarts": "^4.2.1",
+    "element-ui": "^2.4.9",
+    "file-saver": "^2.0.0",
+    "qs": "^6.9.0",
+    "register-service-worker": "^1.0.0",
+    "style-loader": "^1.0.0",
+    "vue": "^2.6.10",
+    "vue-area-linkage": "^5.1.0",
+    "vue-html5-editor": "^1.1.1",
+    "vue-quill-editor": "^3.0.6",
+    "vue-router": "^3.0.1",
+    "xlsx": "^0.14.1"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.12.0",
-    "@vue/cli-plugin-eslint": "^3.12.0",
-    "@vue/cli-service": "^3.12.0",
+    "@vue/cli-plugin-babel": "^3.1.0",
+    "@vue/cli-plugin-eslint": "^3.1.0",
+    "@vue/cli-plugin-pwa": "^3.1.0",
+    "@vue/cli-service": "^3.8.3",
     "babel-eslint": "^10.0.1",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "vue-template-compiler": "^2.6.10"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {},
-    "parserOptions": {
-      "parser": "babel-eslint"
-    }
-  },
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {}
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ]
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0-0",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.3.1",
+    "vue-html5-editor": "^1.1.1",
+    "vue-template-compiler": "^2.5.17",
+    "vuex": "^3.1.1"
+  }
 }
