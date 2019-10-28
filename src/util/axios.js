@@ -9,10 +9,10 @@ axios.defaults.baseURL = CONFIG.api;
 axios.defaults.timeout = 5000;
 
 axios.interceptors.request.use(config => {
-    // console.log(config);
+    console.log(config);
     config.withCredentials = true;
     if (config.type == 'form' && config.file != 'image') {
-        // console.log(config.data);
+        console.log(config.data);
         config.data = qs.stringify(config.data);
     } else {
         config.headers['Content-Type'] = 'application/json; charset=UTF-8';
