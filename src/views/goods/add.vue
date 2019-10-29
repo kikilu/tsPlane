@@ -120,7 +120,135 @@
                         </el-form>
                     </div>
                 </div>
-                <div v-if="stepActive == 2"></div>
+                <div v-if="stepActive == 2">
+                    <div class="form-item-3 flex">
+                        <div class="form-label">商品属性</div>
+                        <div class="flex-1">
+                            <el-form class="form-prop" label-width="100px" v-loading="propLoading">
+                                <el-form-item label="商品类型">
+                                    <el-select v-model="ruleForm.styleId" placeholder="请选择商品类型" :disabled="!isAdd" @change="getProp">
+                                        <el-option
+                                                v-for="item in typeList"
+                                                :key="item.id"
+                                                :label="item.styleName"
+                                                :value="item.id">
+                                        </el-option>
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="商品规格" v-if="propList.length > 0">
+                                    <div class="prop-wrap">
+                                        <el-checkbox-group v-model="checkProp" v-for="(item, index) in propList" :key="index">
+                                            <div class="font-14 gray">{{ item.name }}</div>
+                                            <el-checkbox v-for="prop in item.value" :label="item.name + prop" :key="prop.id">{{ prop }}</el-checkbox>
+                                        </el-checkbox-group>
+                                        <div>
+                                            <el-button type="primary" size="small" v-if="isAdd" @click="addProps">添加</el-button>
+                                        </div>
+                                    </div>
+                                </el-form-item>
+                            </el-form>
+                            <table class="goods-table" border="1" v-show="propSpecList.length > 0">
+                                <thead>
+                                <td v-for="item in propHeader"> {{ item }}</td>
+                                <td>销售价格</td>
+                                <td>商品库存</td>
+                                <td>库存预警值</td>
+                                </thead>
+                                <tbody>
+                                <tr v-for="item in propSpecList">
+                                    <td v-for="val in item.nameValue"> {{ val.value }}</td>
+                                    <td>
+                                        <el-input v-model="item.goodsSalePrice" size="mini" type="number" :max="99999"></el-input>
+                                    </td>
+                                    <td>
+                                        <el-input v-model="item.goodsStock" size="mini" type="number" :max="99999"></el-input>
+                                    </td>
+                                    <td>
+                                        <el-input v-model="item.stockWarning" size="mini" type="number" :max="99999"></el-input>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-item-3 flex" v-loading="propLoading">
+                        <div class="form-label">商品参数</div>
+                        <div class="flex-1">
+                            <table class="goods-table" border="1">
+                                <thead>
+                                <td>参数类型</td>
+                                <td>录入参数</td>
+                                </thead>
+                                <tbody>
+                                <tr v-for="(item, index) in paramsList">
+                                    <td>{{ item.name || item.paramDetailName }}</td>
+                                    <td>
+                                        <el-select v-model="ruleForm.merchantParamDetailIds.merchantParamDetails[index].specificationsValue"
+                                                   placeholder="请输入商品参数值">
+                                            <el-option
+                                                    v-for="val in item.list"
+                                                    :label="val"
+                                                    :value="val">
+                                            </el-option>
+                                        </el-select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>主材含量</td>
+                                    <td>
+                                        <el-input v-model="ruleForm.merchantParamDetailIds.paramsObject" size="mini"></el-input>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-item-3 flex">
+                        <div class="form-label">商品相册</div>
+                        <div class="flex-1">
+                            <div class="flex">
+                                <div class="upload-wrap" v-for="(item, index) in imgList" :key="index">
+                                    <div class="img-wrap">
+                                        <img :src="item" alt="">
+                                        <i class="el-icon-picture" v-if="!item"></i>
+                                    </div>
+                                    <div class="flex h-center around">
+                                        <span class="font-14 red" v-if="index == 0">商品主图</span>
+                                        <span
+                                                class="font-14 green table-btn"
+                                                v-if="index != 0"
+                                                @click="setMainPic(item, index)"
+                                        >设为主图</span>
+                                        <span class="font-14 green table-btn" @click="deleteImg(index)">删除图片</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex h-center">
+                                <div class="upload-btn-wrap">
+                                    <label for="upload">
+                                        <el-button type="primary">上传图片</el-button>
+                                    </label>
+                                    <input type="file" id="upload" @change="uploadGoodImg" class="upload-input large" accept="image/jpeg, image/png">
+                                </div>
+                                <el-button type="primary" @click="dialogVisible = true">从图片库选择</el-button>
+                            </div>
+                            <p class="form-tips">最多可以上传5张图片，建议尺寸800*800px</p>
+                        </div>
+                    </div>
+                    <div class="flex form-item-3">
+                        <div class="form-label">商品详情</div>
+                        <div class="flex-1">
+                            <div class="editor">
+                                <quill-editor
+                                        v-model="ruleForm.goodsMobileImg"
+                                        ref="myQuillEditor"
+                                        :options="editorOption"
+                                        class="editor"
+                                ></quill-editor>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div v-if="stepActive == 3"></div>
             </div>
         </div>
@@ -192,7 +320,7 @@
                 childTypeId: '',
                 brandList: [],
                 dialogVisible: false,
-                stepActive: 0,
+                stepActive: 2,
                 ruleForm: {
                     typeId: '',
                     childId: '',
@@ -288,15 +416,15 @@
                 this.stepActive = 1;
             },
             submitForm(val) {
-
+                this.stepActive = 2;
             },
             getChildCategory(data) {
                 this.ruleForm.childId = data.id;
                 this.childCategoryName = data.typeName;
             },
             getCategory(data) {
-                console.log(data);
-                console.log(this.ruleForm);
+                // console.log(data);
+                // console.log(this.ruleForm);
                 if (this.ruleForm.typeId != data.id) {
                     this.ruleForm.typeId = data.id;
                     this.ruleForm.childId = "";
@@ -304,6 +432,12 @@
                     this.categoryName = data.typeName;
                 }
             },
+            getProp() {
+
+            },
+            addProps() {
+
+            }
         },
         mounted() {
             this.loading = true;
@@ -317,6 +451,7 @@
                         currentPage: 1,
                         pageSize: 100
                     }).then(res => {
+                        // console.log(res);
                         this.typeList = res.list;
                         this.$http.post("merchant_goods_galleries/query_for_page", {
                             currentPage: 1,

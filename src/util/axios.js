@@ -9,7 +9,7 @@ axios.defaults.baseURL = CONFIG.api;
 axios.defaults.timeout = 5000;
 
 axios.interceptors.request.use(config => {
-    console.log(config);
+    // console.log(config);
     config.withCredentials = true;
     if (config.type == 'form' && config.file != 'image') {
         console.log(config.data);
