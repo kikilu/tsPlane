@@ -22,8 +22,8 @@
                                     <div class="title font-18 gray bold">选择一级分类</div>
                                     <ul class="category-list">
                                         <li
-                                                class="ruleForm.typeId == item.id ? 'active' : ''"
                                                 v-for="item in categoryList"
+                                                class="ruleForm.typeId == item.id ? 'active' : ''"
                                                 @click="getCategory(item)"
                                         >
                                             <span>{{item.typeName}}</span>
@@ -245,6 +245,14 @@
                                         :options="editorOption"
                                         class="editor"
                                 ></quill-editor>
+                                <el-upload
+                                        id="uploadEditor"
+                                        hidden
+                                        :action="serverUtl"
+                                        accept="image/jpeg, image/png"
+                                        :http-request="uploadEditor"
+                                >
+                                </el-upload>
                             </div>
                         </div>
                     </div>
@@ -260,7 +268,7 @@
 <script>
     import subTitle from "../../components/subTitle";
     import pagination from "../../components/pagination";
-    import {quillEditor} from "vue-quill-editor";
+    import { quillEditor } from "vue-quill-editor";
     import mixin from "../../util/mixin";
 
     const toolbarOptions = [
@@ -424,7 +432,6 @@
             },
             getCategory(data) {
                 // console.log(data);
-                // console.log(this.ruleForm);
                 if (this.ruleForm.typeId != data.id) {
                     this.ruleForm.typeId = data.id;
                     this.ruleForm.childId = "";
@@ -441,28 +448,35 @@
         },
         mounted() {
             this.loading = true;
+            //获取商品类型列表
             this.$http.post("merchantGoodsType/query_goods_type_tree").then(res => {
                 this.categoryList = res;
                 // console.log(res);
+                //获取商品品牌列表
                 this.$http.post("merchant_goods_brand/query_list").then(res => {
                     this.brandList = res;
                     // console.log(res);
+                    //获取给定页商品样式列表
                     this.$http.post("merchantGoodsStyle/merchant_goods_style_list_page", {
                         currentPage: 1,
                         pageSize: 100
                     }).then(res => {
                         // console.log(res);
                         this.typeList = res.list;
+                        //获取给定页商品展示
                         this.$http.post("merchant_goods_galleries/query_for_page", {
                             currentPage: 1,
                             pageSize: 100
                         }).then(res => {
                             this.albumList = res.list;
+                            //获取商品导航
                             this.$http.post("merchantNavigation/query_navigation_type_tree").then(res => {
                                 this.headerList = res;
                                 // console.log(this.$route);
                                 if (this.$route.query.id) {
+                                    console.log("================================================================");
                                     this.isAdd = false;
+                                    //根据商品id获取商品详细信息
                                     this.$http.post("merchantGoods/merchant_goods_by_id", {
                                         id: this.$route.query.id
                                     }).then(res => {
@@ -576,6 +590,12 @@
                 border-left-color: $green;
             }
         }
+        .form-item-3 {
+            margin-bottom: 40px;
+            &:last-child > .form-label {
+                margin-bottom: 20px;
+            }
+        }
         .select-category {
             margin-top: 40px;
             .title {
@@ -645,5 +665,10 @@
     }
     .text-center {
         margin-top: 20px;
+    }
+    .editor {
+        width: 800px;
+        height: 300px;
+        padding-bottom: 20px;
     }
 </style>

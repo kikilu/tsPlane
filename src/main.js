@@ -7,6 +7,9 @@ import Element from 'element-ui'
 import {Message} from "element-ui";
 import plugin from './util/plugin';
 import './assets/css/element-variables.scss';
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
 
 Vue.use(plugin);
 Vue.config.productionTip = false;
