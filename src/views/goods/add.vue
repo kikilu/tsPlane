@@ -254,6 +254,10 @@
                                 >
                                 </el-upload>
                             </div>
+                            <div style="margin-top: 80px">
+                                <el-button @click="stepActive = 1">上一步，填写商品信息</el-button>
+                                <el-button type="primary" @click="submitGood">下一步，选择商品类目</el-button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -439,10 +443,104 @@
                     this.categoryName = data.typeName;
                 }
             },
-            getProp() {
+            getProp(val) {
+                // console.log(val);
+                // console.log(this.oldStyleId);
+                // console.log(this.typeList);
+                if (val == this.oldStyleId) {
+                    this.propList = this.oldPropList;
+                    this.checkProp = this.oldCheckProp;
+                    this.checkPropList = this.oldCheckPropList;
+                    this.propHeader = this.oldPropHeader;
+                    this.propSpecList = this.oldPropSpecList;
+                    this.ruleForm.merchantParamDetailIds = this.oldMerchantParamDetailIds;
+                    this.$http.post("merchantGoodsParam/merchant_goods_property_list_page", {
+                        styleId: val,
+                        currentPage: 1,
+                        pageSize: 100
+                    }).then(res => {
+                        let list = [];
+                        res.list.map(item => {
+                            list.push({
+                                name: item.paramName,
+                                list: item.paramList.split(",")
+                            });
+                        });
+                        this.paramsList = list;
+                    });
+                } else {
+                    this.checkProp = [];
+                    this.checkPropList = [];
+                    this.propHeader = [];
+                    this.propSpecList = [];
+                    this.propLoading = true;
+                    this.$http.post("merchantGoodsProperty/merchant_goods_property_list_page", {
+                            styleId: val,
+                            currentPage: 1,
+                            pageSize: 100
+                        }).then(res => {
+                            let propList = [];
 
+                            // console.log(res);
+                            res.list.map(item => {
+                                propList.push({
+                                    name: item.propertyName,
+                                    value: item.propertyList.split(",")
+                                });
+                                // paramsList.push({
+                                //     name: item.paramName,
+                                //     list: item.paramList.split(",")
+                                // });
+                                // formList.push({
+                                //     paramDetailName: item.paramName,
+                                //     specificationsValue: ''
+                                // });
+                            });
+                            this.propList = propList;
+                            let paramsList = [];
+                            let formList = [];
+                            this.$http.post("merchantGoodsParam/merchant_goods_property_list_page", {
+                                styleId: val,
+                                currentPage: 1,
+                                pageSize: 100
+                            }).then(res => {
+                                res.list.map(item => {
+                                    paramsList.push({
+                                        name: item.paramName,
+                                        list: item.paramList.split(",")
+                                    });
+                                    formList.push({
+                                        paramDetailName: item.paramName,
+                                        specificationsValue: ''
+                                    });
+                                })
+                            });
+                            this.paramsList = paramsList;
+                            this.$set(this.ruleForm, "merchantParamDetailIds", {
+                                merchantParamDetails: formList,
+                                mainMaterial: "",
+                                paramObject: ""
+                            });
+                            this.propLoading = false;
+                    });
+                }
             },
             addProps() {
+
+            },
+            setMainPic() {
+
+            },
+            deleteImg() {
+
+            },
+            uploadGoodImg() {
+
+            },
+            uploadEditor() {
+
+            },
+            submitGood() {
 
             }
         },
@@ -596,6 +694,10 @@
                 margin-bottom: 20px;
             }
         }
+        .search-input {
+            width: 200px;
+            margin: 0 15px;
+        }
         .select-category {
             margin-top: 40px;
             .title {
@@ -649,12 +751,98 @@
                 color: $green;
             }
         }
+        .text-center {
+            margin-top: 20px;
+        }
         .form-tips {
             font-size: 12px;
             color: $gray;
             line-height: 16px;
             margin-top: 5px;
         }
+        .prop-wrap {
+            padding: 20px;
+            border: $border;
+            border-radius: 4px;
+        }
+    }
+    .upload-wrap {
+        margin-right: 20px;
+        margin-bottom: 20px;
+        border: $border;
+        .img-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 160px;
+            height: 160px;
+            border-bottom: $border;
+            i {
+                color: $gray;
+                font-size: 30px;
+            }
+            img {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        > div:last-child {
+            height: 40px;
+            background-color: #f8f9fc;
+        }
+    }
+    .dialog-footer {
+        button:last-child {
+            margin-right: 0;
+        }
+    }
+    .img-table {
+        margin-top: 20px;
+        div {
+            width: 150px;
+            height: 150px;
+            margin-right: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            img {
+                width: 100%;
+                height: 100%;
+            }
+            i {
+                position: absolute;
+                right: 0;
+                top: 0;
+                color: green;
+                background-color: #fff;
+                border-radius: 50%;
+                font-size: 24px;
+            }
+        }
+    }
+    .goods-table {
+        border-radius: 4px;
+        border-right: $border;
+        border-bottom: $border;
+        thead {
+            background-color: #eeeeee;
+        }
+        td {
+            height: 50px;
+            color: $gray;
+            text-align: center;
+            border-left: $border;
+            border-top: $border;
+            padding: 0 20px;
+        }
+    }
+    .form-params {
+        .mall-btn {
+            margin-bottom: 20px;
+        }
+    }
+    .pagination {
+        border: $border;
+        background-color: #fff;
     }
     .label2 {
         margin-top: 274px;
@@ -670,5 +858,8 @@
         width: 800px;
         height: 300px;
         padding-bottom: 20px;
+    }
+    .upload-btn-wrap {
+        margin-right: 20px;
     }
 </style>
