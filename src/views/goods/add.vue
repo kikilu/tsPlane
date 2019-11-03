@@ -139,7 +139,13 @@
                                     <div class="prop-wrap">
                                         <el-checkbox-group v-model="checkProp" v-for="(item, index) in propList" :key="index">
                                             <div class="font-14 gray">{{ item.name }}</div>
-                                            <el-checkbox v-for="prop in item.value" :label="item.name + prop" :key="prop.id">{{ prop }}</el-checkbox>
+                                            <el-checkbox
+                                                    v-for="prop in item.value"
+                                                    :label="item.name + prop"
+                                                    :key="prop.id"
+                                                    :disabled="!isAdd"
+                                                    @change="handleCheckProp(prop, item.name, $event)"
+                                            >{{ prop }}</el-checkbox>
                                         </el-checkbox-group>
                                         <div>
                                             <el-button type="primary" size="small" v-if="isAdd" @click="addProps">添加</el-button>
@@ -274,6 +280,7 @@
     import pagination from "../../components/pagination";
     import { quillEditor } from "vue-quill-editor";
     import mixin from "../../util/mixin";
+    import brand from "./brand";
 
     const toolbarOptions = [
         ["bold", "italic", "underline", "strike"], // toggled buttons
@@ -316,6 +323,9 @@
                 }
             };
             let validGoodsWeight = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入商品重量'));
+                }
                 if (value < 0) {
                     callback(new Error("商品重量不能小于0"));
                 } else {
@@ -363,19 +373,19 @@
                 },
                 rules: {
                     goodsName: [
-                        {require: true, message: "请输入商品名称", trigger: 'blur'},
+                        {required: true, message: "请输入商品名称", trigger: 'blur'},
                         {max: 20, message: "长度必须小于20个字符"}
                     ],
                     goodsSubtitle: [
-                        {require: true, message: "请输入副标题", trigger: 'blur'},
+                        {required: true, message: "请输入副标题", trigger: 'blur'},
                         {max: 20, message: "长度必须小于20个字符"}
                     ],
-                    brandId: [{require: true, message: "请选择品牌", trigger: 'change'}],
-                    goodsDesc: [{require: true, message: "请输入商品介绍", trigger: "blur"}],
-                    goodsPrice: [{require: true, message: "请输入商品售价", trigger: "blur"}],
-                    goodsStock: [{require: true, validator: validGoodsStock, trigger: "blur"}],
-                    goodsWarning: [{require: true, message: "请输入库存预警值", trigger: "blur"}],
-                    goodsWeight: [{require: true, validator: validGoodsWeight, trigger: "blur"}]
+                    brandId: [{required: true, message: "请选择品牌", trigger: 'change'}],
+                    goodsDesc: [{required: true, message: "请输入商品介绍", trigger: "blur"}],
+                    goodsPrice: [{required: true, message: "请输入商品售价", trigger: "blur"}],
+                    goodsStock: [{required: true, validator: validGoodsStock, trigger: "blur"}],
+                    goodsWarning: [{required: true, message: "请输入库存预警值", trigger: "blur"}],
+                    goodsWeight: [{required: true, validator: validGoodsWeight, trigger: "blur"}]
                 },
                 typeList: [],
                 goodsTypeId: '',
@@ -428,7 +438,14 @@
                 this.stepActive = 1;
             },
             submitForm(val) {
-                this.stepActive = 2;
+                this.$refs[val].validate(valid => {
+                    if (valid) {
+                        this.stepActive = 2;
+                        document.documentElement.scrollTop = 0;
+                    } else {
+                        return false;
+                    }
+                });
             },
             getChildCategory(data) {
                 this.ruleForm.childId = data.id;
@@ -447,6 +464,7 @@
                 // console.log(val);
                 // console.log(this.oldStyleId);
                 // console.log(this.typeList);
+                console.log(this.oldCheckPropList);
                 if (val == this.oldStyleId) {
                     this.propList = this.oldPropList;
                     this.checkProp = this.oldCheckProp;
@@ -526,7 +544,69 @@
                 }
             },
             addProps() {
-
+                if (!this.ruleForm.styleId) {
+                    this.$msgWar("请选择商品类型");
+                    return;
+                }
+                if (this.checkPropList == 0) {
+                    this.$msgWar("请选择商品属性");
+                    return;
+                }
+                let propHeader = [];
+                let propArr = [];
+                this.checkPropList.map((item, index) => {
+                    propHeader.push(item.name);
+                    propArr[index] = [];
+                    this.checkPropList[index].value.map(val => {
+                        propArr[index].push({
+                            name: this.checkPropList[index].name,
+                            value: val
+                        });
+                    });
+                });
+                this.propHeader = propHeader;
+                console.log(propArr);
+                let propItem = sortAll(propArr);
+                console.log(propItem);
+                this.propSpecList = [];
+                propItem.map(item => {
+                    this.propSpecList.push({
+                        nameValue: item instanceof Array ? item : [item],
+                        goodsSalePrice: "",
+                        goodsStock: "",
+                        stockWarning: "",
+                        skuCode: ""
+                    });
+                });
+                console.log(this.propSpecList);
+                function sortAll(arr) {
+                    var len = arr.length;
+                    if (len >= 2) {
+                        var len1 = arr[0].length;
+                        var len2 = arr[1].length;
+                        var lenBoth = len1 * len2;
+                        var items = new Array(lenBoth);
+                        var index = 0;
+                        for (var i = 0; i < len1; i++) {
+                            for (var j = 0; j < len2; j++) {
+                                if (arr[0][i] instanceof Array) {
+                                    items[index] = [...arr[0][i], arr[1][j]];
+                                } else {
+                                    items[index] = [arr[0][i], arr[1][j]];
+                                }
+                                index++;
+                            }
+                        }
+                        var newArr = new Array(len - 1);
+                        for (var i = 0; i < arr.length; i++) {
+                            newArr[i - 1] = arr[i];
+                        }
+                        newArr[0] = items;
+                        return sortAll(newArr);
+                    } else {
+                        return arr[0];
+                    }
+                }
             },
             setMainPic() {
 
@@ -542,6 +622,48 @@
             },
             submitGood() {
 
+            },
+            handleCheckProp(prop, name, $event) {
+                if ($event) {
+                    if (this.checkPropList.length == 0) {
+                        this.checkPropList.push({
+                            name: name,
+                            value: [prop]
+                        });
+                    } else {
+                        // debugger;
+                        let isExist = false;
+                        for (let i = 0; i < this.checkPropList.length; i++) {
+                            if (this.checkPropList[i].name == name) {
+                                this.checkPropList[i].value.push(prop);
+                                isExist = true;
+                                break;
+                            }
+                        }
+                        if (!isExist) {
+                            // debugger;
+                            this.checkPropList.push({
+                                name: name,
+                                value: [prop]
+                            });
+                        }
+                    }
+                } else {
+                    // debugger;
+                    for (let i = 0; i < this.checkPropList.length; i++) {
+                        if (this.checkPropList[i].name == name) {
+                            for (let j = 0; j < this.checkPropList[i].value.length; j++) {
+                                if (this.checkPropList[i].value[j] == prop) {
+                                    this.checkPropList[i].value.splice(j, 1);
+                                    if (this.checkPropList[i].value.length == 0) {
+                                        this.checkPropList.splice(i, 1);
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         mounted() {
