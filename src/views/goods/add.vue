@@ -234,7 +234,7 @@
                                     <label for="upload">
                                         <el-button type="primary">上传图片</el-button>
                                     </label>
-                                    <input type="file" id="upload" @change="uploadGoodImg" class="upload-input large" accept="image/jpeg, image/png">
+                                    <input type="file" multiple="multiple" id="upload" @change="uploadGoodImg" class="upload-input large" accept="image/jpeg, image/png">
                                 </div>
                                 <el-button type="primary" @click="dialogVisible = true">从图片库选择</el-button>
                             </div>
@@ -281,6 +281,7 @@
     import { quillEditor } from "vue-quill-editor";
     import mixin from "../../util/mixin";
     import brand from "./brand";
+    import imageList from "./imageList";
 
     const toolbarOptions = [
         ["bold", "italic", "underline", "strike"], // toggled buttons
@@ -505,14 +506,6 @@
                                     name: item.propertyName,
                                     value: item.propertyList.split(",")
                                 });
-                                // paramsList.push({
-                                //     name: item.paramName,
-                                //     list: item.paramList.split(",")
-                                // });
-                                // formList.push({
-                                //     paramDetailName: item.paramName,
-                                //     specificationsValue: ''
-                                // });
                             });
                             this.propList = propList;
                             let paramsList = [];
@@ -608,14 +601,43 @@
                     }
                 }
             },
-            setMainPic() {
-
+            setMainPic(url, index) {
+                this.imgList.splice(index, 1);
+                this.imgList.unshift(url);
             },
-            deleteImg() {
-
+            deleteImg(index) {
+                this.imgList.splice(index, 1);
             },
-            uploadGoodImg() {
-
+            uploadGoodImg(file) {
+                // console.log(this.imgList);
+                let files = file.target.files;
+                if (files.length + this.imgList.length > 5) {
+                    this.$msgWar("图片最多5张");
+                    return;
+                }
+                let promiseList = [];
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i] == []) {
+                        continue;
+                    }
+                    promiseList.push(this.uploadFiles(files[i]));
+                }
+                console.log(promiseList);
+                Promise.all(promiseList).then(res => {
+                    res.map(item => {
+                        this.imgList.push(item.imgUrl);
+                    });
+                }, err => {
+                    this.$msgErr("上传失败" + err.msg);
+                });
+                // Promise.all(promiseList).then(res => {
+                //         res.map(item => {
+                //             this.imgList.push(item.imgUrl);
+                //         });
+                //     }, () => {
+                //     this.$msgErr("上传失败");
+                //     }
+                // );
             },
             uploadEditor() {
 
