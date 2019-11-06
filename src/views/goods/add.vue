@@ -202,7 +202,13 @@
                                 <tr>
                                     <td>主材含量</td>
                                     <td>
-                                        <el-input v-model="ruleForm.merchantParamDetailIds.paramsObject" size="mini"></el-input>
+                                        <el-input v-model="ruleForm.merchantParamDetailIds.mainMaterial" size="mini"></el-input>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>适用对象</td>
+                                    <td>
+                                        <el-input v-model="ruleForm.merchantParamDetailIds.paramObject" size="mini"></el-input>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -280,8 +286,6 @@
     import pagination from "../../components/pagination";
     import { quillEditor } from "vue-quill-editor";
     import mixin from "../../util/mixin";
-    import brand from "./brand";
-    import imageList from "./imageList";
 
     const toolbarOptions = [
         ["bold", "italic", "underline", "strike"], // toggled buttons
@@ -415,7 +419,7 @@
                 quillUpdateImg: false,
                 serverUtl: "https://ls.diandianyuyue.com",
                 editorOption: {
-                    placeholder: "",
+                    placeholder: "请输入商品详细信息",
                     theme: "snow",
                     modules: {
                         toolbar: {
@@ -601,13 +605,16 @@
                     }
                 }
             },
+            //设置主图片
             setMainPic(url, index) {
                 this.imgList.splice(index, 1);
                 this.imgList.unshift(url);
             },
+            //删除图片
             deleteImg(index) {
                 this.imgList.splice(index, 1);
             },
+            //上传图片
             uploadGoodImg(file) {
                 // console.log(this.imgList);
                 let files = file.target.files;
@@ -615,14 +622,17 @@
                     this.$msgWar("图片最多5张");
                     return;
                 }
+                //创建任务队列
                 let promiseList = [];
                 for (let i = 0; i < files.length; i++) {
                     if (files[i] == []) {
                         continue;
                     }
+                    //将要上传的图片加入任务队列
                     promiseList.push(this.uploadFiles(files[i]));
                 }
-                console.log(promiseList);
+                // console.log(promiseList);
+                //执行任务队列
                 Promise.all(promiseList).then(res => {
                     res.map(item => {
                         this.imgList.push(item.imgUrl);
@@ -630,22 +640,26 @@
                 }, err => {
                     this.$msgErr("上传失败" + err.msg);
                 });
-                // Promise.all(promiseList).then(res => {
-                //         res.map(item => {
-                //             this.imgList.push(item.imgUrl);
-                //         });
-                //     }, () => {
-                //     this.$msgErr("上传失败");
-                //     }
-                // );
             },
-            uploadEditor() {
-
+            uploadEditor(files) {
+                this.uploadFiles(files.file).then(res => {
+                    let imgUrl = res.imgUrl;
+                    if (imgUrl) {
+                        let quill = this.$refs.myQuillEditor.quill;
+                        let length = quill.getSelection().index;
+                        quill.insertEmbed(length, "image", imgUrl);
+                        quill.setSelection(length + 1);
+                    } else {
+                        this.$msgErr("上传失败");
+                    }
+                });
             },
             submitGood() {
-
+                // add tomorrow...
             },
+            //添加商品属性
             handleCheckProp(prop, name, $event) {
+                //如果复选框被选中，将选中的商品属性加入this.checkPropList中
                 if ($event) {
                     if (this.checkPropList.length == 0) {
                         this.checkPropList.push({
@@ -671,6 +685,7 @@
                         }
                     }
                 } else {
+                    //如果复选框被取消，则将this.checkPropList中对应的商品属性去除
                     // debugger;
                     for (let i = 0; i < this.checkPropList.length; i++) {
                         if (this.checkPropList[i].name == name) {
