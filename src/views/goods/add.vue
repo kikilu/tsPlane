@@ -277,7 +277,40 @@
             </div>
         </div>
 <!--        相册库弹窗-->
-        <el-dialog></el-dialog>
+        <el-dialog
+                title="从图库选择"
+                :visible.sync="dialogVisible"
+                :append-to-body="true"
+        >
+            <div class="flex between h-center">
+                <span>商品图库 > 全部图片</span>
+                <el-select v-model="input" placeholder="请选择图库分类" @change="getAlbumImg" size="small" class="search-input">
+                    <el-option
+                            v-for="item in albumList"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+            </div>
+            <div class="img-table flex">
+                <div v-for="(item, index) in albumImgList" :key="index" @click="checkAlbumImg(item)">
+                    <img :src="item.imgUrl" alt="">
+                    <i class="el-icon-success" v-if="checkAlbumImgList.indexOf(item.imgUrl) >= 0"></i>
+                </div>
+            </div>
+            <pagination
+                    :is-batch="false"
+                    @next="next"
+                    :total="total"
+                    :pageSize="pageSize"
+                    class="pagination"
+            ></pagination>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="addImg">确定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -406,6 +439,7 @@
                 albumList: [],
                 albumId: '',
                 albumImgList: [],
+                checkAlbumImgList: [],
                 oldStyleId: "",
                 oldPropList: [],
                 oldCheckProp: [],
@@ -701,6 +735,29 @@
                         }
                     }
                 }
+            },
+            getAlbumImg(val) {
+                console.log(val);
+                this.albumId = val;
+                this.$http.post("merchant_goods_galleries_detail/query_for_page", {
+                    currentPage: this.currentPage,
+                    pageSize: this.pageSize,
+                    galleriesId: val
+                }).then(res => {
+                    console.log(res);
+                    this.albumImgList = res.list;
+                    this.total = res.totalCount;
+                });
+            },
+            checkAlbumImg(item) {
+                console.log(item);
+            },
+            addImg(val) {
+                console.log(val);
+            },
+            next(val) {
+                this.currentPage = val;
+                this.getAlbumImg(this.albumId);
             }
         },
         mounted() {
