@@ -296,7 +296,7 @@
             <div class="img-table flex">
                 <div v-for="(item, index) in albumImgList" :key="index" @click="checkAlbumImg(item)">
                     <img :src="item.imgUrl" alt="">
-                    <i class="el-icon-success" v-if="checkAlbumImgList.indexOf(item.imgUrl) >= 0"></i>
+                    <i class="el-icon-success" v-if="checkAlbumImgList.indexOf(item.id) >= 0"></i>
                 </div>
             </div>
             <pagination
@@ -750,7 +750,27 @@
                 });
             },
             checkAlbumImg(item) {
-                console.log(item);
+                // for (let i = 0; i < this.checkAlbumImgList.length; i++) {
+                //     if (this.checkAlbumImgList[i].id == item.id) {
+                //         this.checkAlbumImgList.splice(i, 1);
+                //         return;
+                //     }
+                // }
+                // if (this.checkAlbumImgList.length + this.imgList.length >= 5) {
+                //     this.$msgWar("最多添加5张");
+                //     return;
+                // }
+                // this.checkAlbumImgList.push({id: item.id, imgUrl: item.imgUrl});
+                // console.log(this.checkAlbumImgList);
+                if (this.checkAlbumImgList.indexOf(item.id) < 0) {
+                    if (this.checkAlbumImgList.length + this.imgList.length >= 5) {
+                        this.$msgWar("最多添加5张");
+                        return;
+                    }
+                    this.checkAlbumImgList.push(item.id);
+                } else {
+                    this.checkAlbumImgList.splice(this.checkAlbumImgList.indexOf(item.id), 1);
+                }
             },
             addImg(val) {
                 console.log(val);
