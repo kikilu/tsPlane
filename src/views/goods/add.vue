@@ -419,7 +419,7 @@
                 childTypeId: '',
                 brandList: [],
                 dialogVisible: false,
-                stepActive: 3,
+                stepActive: 0,
                 ruleForm: {
                     typeId: '',
                     childId: '',
