@@ -4,7 +4,7 @@ export default {
             visibleSearch: false,
             input: '',
             currentPage: 1,
-            pageSize: 10,
+            pageSize: 3,
             pageCount: 0,
             total: 0,
             isAdd: true,

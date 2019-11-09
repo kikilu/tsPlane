@@ -23,7 +23,7 @@
                                     <ul class="category-list">
                                         <li
                                                 v-for="item in categoryList"
-                                                class="ruleForm.typeId == item.id ? 'active' : ''"
+                                                :class="ruleForm.typeId == item.id ? 'active' : ''"
                                                 @click="getCategory(item)"
                                         >
                                             <span>{{item.typeName}}</span>
@@ -273,7 +273,46 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="stepActive == 3"></div>
+                <div v-if="stepActive == 3">
+                    <div class="flex">
+                        <div class="form-label">关联目录</div>
+                        <div class="flex-1">
+                            <p class="form-tips">*类目非必选 | 选择了一级类目必须选择二级类目</p>
+                            <div class="select-category flex h-center" style="margin-top: 20px">
+                                <div class="flex-1">
+                                    <div class="title font-18 gray bold">选择一级类目</div>
+                                    <ul class="category-list">
+                                        <li :class="ruleForm.navId == item.id ? 'active' : ''"
+                                            v-for="item in headerList"
+                                            @click="getHeader(item)"
+                                        >
+                                            <span>{{item.navName}}</span>
+                                            <i class="el-icon-arrow-right fr"></i>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <img src="@/assets/icon-arrow.png" alt="">
+                                <div class="flex-1">
+                                    <div class="title font-18 gray bold">选择二级类目</div>
+                                    <ul class="category-list" v-if="childHeaderList.length > 0">
+                                        <li
+                                                :class="ruleForm.navChildId == item.id ? 'active' : ''"
+                                                @click="getChildHeader(item)"
+                                                v-for="item in childHeaderList"
+                                        >{{item.navName}}</li>
+                                    </ul>
+                                    <div class="category-list" v-if="childHeaderList.length == 0">
+                                        <span class="empty">暂无类目</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 20px">
+                                <el-button @click="stepActive = 2">上一步，填写商品属性</el-button>
+                                <el-button type="primary" @click="submitGoods">完成，提交商品</el-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 <!--        相册库弹窗-->
@@ -296,7 +335,7 @@
             <div class="img-table flex">
                 <div v-for="(item, index) in albumImgList" :key="index" @click="checkAlbumImg(item)">
                     <img :src="item.imgUrl" alt="">
-                    <i class="el-icon-success" v-if="checkAlbumImgList.indexOf(item.id) >= 0"></i>
+                    <i class="el-icon-success" v-if="isIdExits(item).exits"></i>
                 </div>
             </div>
             <pagination
@@ -380,7 +419,7 @@
                 childTypeId: '',
                 brandList: [],
                 dialogVisible: false,
-                stepActive: 2,
+                stepActive: 3,
                 ruleForm: {
                     typeId: '',
                     childId: '',
@@ -461,6 +500,7 @@
                             handlers: {
                                 image: function (value) {
                                     if (value) {
+                                        //如果插入了图片，则触发uploadEditor()函数
                                         document.querySelector("#uploadEditor input").click();
                                     } else {
                                         this.quill.format("image", false);
@@ -492,6 +532,8 @@
             },
             getCategory(data) {
                 // console.log(data);
+                this.ruleForm.childId = "";
+                this.childCategoryName = "";
                 if (this.ruleForm.typeId != data.id) {
                     this.ruleForm.typeId = data.id;
                     this.ruleForm.childId = "";
@@ -676,6 +718,8 @@
                 });
             },
             uploadEditor(files) {
+                console.log("uploadEditor");
+                console.log(files);
                 this.uploadFiles(files.file).then(res => {
                     let imgUrl = res.imgUrl;
                     if (imgUrl) {
@@ -689,7 +733,59 @@
                 });
             },
             submitGood() {
-                // add tomorrow...
+                //提交产品信息
+                let formData = this.ruleForm;
+                if (!formData.styleId) {
+                    this.$msgWar("请选择商品类型");
+                    return;
+                }
+                if (this.checkPropList.length == 0) {
+                    this.$msgWar("请选择商品规格");
+                    return;
+                }
+                if (this.propSpecList.length == 0) {
+                    this.$msgWar("请选择商品规格列表");
+                    return;
+                }
+                for (let i = 0; i < this.propSpecList.length; i++) {
+                    let data = this.propSpecList[i];
+                    if (!data.goodsSalePrice || !data.goodsStock || !data.stockWarning) {
+                        this.$msgWar("请填写完整商品规格列表");
+                        return;
+                    }
+                    if (data.goodsStock > 99999 || data.stockWarning > 99999) {
+                        this.$msgWar("库存最大值为99999");
+                        return;
+                    }
+                    if (data.goodsSalePrice < 0) {
+                        this.$msgWar("规格列表销售价格不能小于0");
+                        return;
+                    }
+                    if (data.goodsStock < 0) {
+                        this.$msgWar("规格列表库存不能小于0");
+                        return;
+                    }
+                    if (data.goodsWarning < 0) {
+                        this.$msgWar("规格列表库存预警值不能小于0");
+                        return;
+                    }
+                }
+                let details = formData.merchantParamDetailIds.merchantParamDetails;
+                for (let i = 0; i < details.length; i++) {
+                    if (!details[i].specificationsValue) {
+                        this.$msgWar("请选择商品参数");
+                        return;
+                    }
+                }
+                if (!formData.merchantParamDetailIds.mainMaterial || !formData.merchantParamDetailIds.paramObject) {
+                    this.$msgWar("请填写商品参数");
+                    return;
+                }
+                if (this.imgList.length == 0) {
+                    this.$msgWar("请上传产品图片");
+                    return;
+                }
+                this.stepActive = 3;
             },
             //添加商品属性
             handleCheckProp(prop, name, $event) {
@@ -736,6 +832,7 @@
                     }
                 }
             },
+            //获取图库图片
             getAlbumImg(val) {
                 console.log(val);
                 this.albumId = val;
@@ -749,35 +846,91 @@
                     this.total = res.totalCount;
                 });
             },
+            //从图库中添加图片
             checkAlbumImg(item) {
-                // for (let i = 0; i < this.checkAlbumImgList.length; i++) {
-                //     if (this.checkAlbumImgList[i].id == item.id) {
-                //         this.checkAlbumImgList.splice(i, 1);
-                //         return;
-                //     }
-                // }
-                // if (this.checkAlbumImgList.length + this.imgList.length >= 5) {
-                //     this.$msgWar("最多添加5张");
-                //     return;
-                // }
-                // this.checkAlbumImgList.push({id: item.id, imgUrl: item.imgUrl});
-                // console.log(this.checkAlbumImgList);
-                if (this.checkAlbumImgList.indexOf(item.id) < 0) {
+                // console.log(item);
+                var exits = this.isIdExits(item);
+                if (!exits.exits) {
                     if (this.checkAlbumImgList.length + this.imgList.length >= 5) {
                         this.$msgWar("最多添加5张");
                         return;
                     }
-                    this.checkAlbumImgList.push(item.id);
+                    this.checkAlbumImgList.push({id:item.id, imgUrl: item.imgUrl});
                 } else {
-                    this.checkAlbumImgList.splice(this.checkAlbumImgList.indexOf(item.id), 1);
+                    this.checkAlbumImgList.splice(exits.index, 1);
                 }
             },
-            addImg(val) {
-                console.log(val);
+            isIdExits(item) {
+                for (let i = 0; i < this.checkAlbumImgList.length; i++) {
+                    if (this.checkAlbumImgList[i].id == item.id) {
+                        return {exits: true, index: i};
+                    }
+                }
+                return {exits: false, index: -1};
             },
+            //将图库中选中的图片插入imgList中
+            addImg() {
+                var temp = [];
+                this.checkAlbumImgList.map(item => {
+                    temp.push(item.imgUrl);
+                });
+                this.imgList = [...this.imgList, ...temp];
+                this.checkAlbumImgList = [];
+                this.dialogVisible = false;
+            },
+
             next(val) {
                 this.currentPage = val;
                 this.getAlbumImg(this.albumId);
+            },
+            getHeader(item) {
+                console.log(this.ruleForm);
+                console.log(item);
+                if (this.ruleForm.navId != item.id) {
+                    this.ruleForm.navId = item.id;
+                    this.ruleForm.navChildId = "";
+                    this.childHeaderList = item.list;
+                } else {
+                    this.ruleForm.navId = "";
+                    this.ruleForm.navChildId = "";
+                    this.childHeaderList = [];
+                }
+            },
+            getChildHeader(item) {
+                this.ruleForm.navChildId = item.id;
+            },
+            submitGoods() {
+                if (this.ruleForm.navId && !this.ruleForm.navChildId) {
+                    this.$msgWar("选择了一级类目必须选择二级类目");
+                    return;
+                }
+                let formData = JSON.parse(JSON.stringify(this.ruleForm));
+                if (!formData.merchantParamDetailIds.merchantParamDetails) {
+                    formData.merchantParamDetailIds.merchantParamDetails = [];
+                }
+                formData.goodsImg = this.imgList.join(",");
+                formData.merchantSpecification = this.checkPropList;
+                formData.merchantGoodsTypePropertyList = this.propSpecList;
+                if (this.isAdd) {
+                    this.$http.post("merchantGoods/merchant_goods_add", formData).then(() => {
+                        this.$msgSuc("添加商品成功");
+                        setTimeout(() => {
+                            this.back();
+                        }, 500);
+                    }, err => {
+                        this.$msgErr(err.msg);
+                    });
+                } else {
+                    formData.id = this.$router.query.id;
+                    this.$http.post("merchantGoods/merchant_goods_update", formData).then(() => {
+                        this.$msgSuc("修改成功");
+                        setTimeout(() => {
+                            this.back();
+                        }, 500);
+                    }, err => {
+                        this.$msgErr(err.msg);
+                    });
+                }
             }
         },
         mounted() {
