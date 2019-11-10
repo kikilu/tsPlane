@@ -73,6 +73,11 @@ export default new Router({
                     component: resolve => {require(['_V/goods/type'], resolve)}
                 },
                 {
+                    path: '/goods/type/prop/:id',   //商品类型属性
+                    name: 'prop',
+                    component: resolve => {require(['_V/goods/prop'], resolve)}
+                },
+                {
                     path: '/goods/brand',
                     name: 'brand',
                     component: resolve => {require(['_V/goods/brand'], resolve)}
