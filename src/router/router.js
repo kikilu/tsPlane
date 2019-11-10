@@ -63,6 +63,11 @@ export default new Router({
                     component: resolve => {require(['_V/goods/category'], resolve)}
                 },
                 {
+                    path: '/goods/category/addCategory',
+                    name: 'addCategory',
+                    component: resolve => {require(['_V/goods/addCategory'], resolve)}
+                },
+                {
                     path: '/goods/type',
                     name: 'type',
                     component: resolve => {require(['_V/goods/type'], resolve)}
