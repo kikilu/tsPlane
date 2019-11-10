@@ -3,7 +3,7 @@ import Router from "vue-router"
 
 Vue.use(Router);
 export default new Router({
-    // base: process.env.BASE_URL,
+    base: process.env.BASE_URL,
     // mode: 'history',
     routes: [
         {
@@ -51,6 +51,11 @@ export default new Router({
                     path: '/goods/comment',
                     name: 'comment',
                     component: resolve => {require(['_V/goods/comment'], resolve)}
+                },
+                {
+                  path: '/goods/comment/detail',
+                  name: 'commentDetail',
+                  component: resolve => {require(['_V/goods/commentDetail'], resolve)}
                 },
                 {
                     path: '/goods/category',

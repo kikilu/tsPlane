@@ -1,5 +1,6 @@
 const path = require("path")
 module.exports = {
+    productionSourceMap: false, //是否打包sourcemap
     publicPath: "./",
     lintOnSave: false,
     // devServer: { //服务器配置
