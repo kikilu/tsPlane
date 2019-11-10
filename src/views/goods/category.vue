@@ -81,7 +81,7 @@
                 <div class="flex">
                     <div class="flex-1">
                         <p>原商品分类：</p>
-                        <el-select v-model="originaId" placeholder="请选择商品分类" class="search-input">
+                        <el-select v-model="addCategoryList[originalId].typeName" disabled placeholder="请选择商品分类" class="search-input">
                             <el-option
                                     v-for="item in addCategoryList"
                                     :key="item.id"
@@ -128,7 +128,7 @@
                 tableData: [],
                 dialogVisible: false,
                 second: false,
-                originaId: "",
+                originalId: "",
                 lastId: "",
                 addCategoryList: []
             };
@@ -180,9 +180,8 @@
                     });
                 });
             },
+            //是否显示
             handleShow($event, data) {
-                console.log($event);
-                console.log(data);
                 let form = {
                     id: data.id,
                     typeName: data.typeName,
@@ -200,7 +199,7 @@
             },
             shiftGoods(id) {
                 this.dialogVisible = true;
-                this.orient = id;
+                this.originalId = id;
             },
             updateCategoryGoods() {
                 this.$http.post("merchantGoodsType/merchant_goods_type_transfer", {
