@@ -81,7 +81,7 @@
                 <div class="flex">
                     <div class="flex-1">
                         <p>原商品分类：</p>
-                        <el-select v-model="addCategoryList[originalId].typeName" disabled placeholder="请选择商品分类" class="search-input">
+                        <el-select v-model="originalId" disabled placeholder="请选择商品分类" class="search-input">
                             <el-option
                                     v-for="item in addCategoryList"
                                     :key="item.id"
