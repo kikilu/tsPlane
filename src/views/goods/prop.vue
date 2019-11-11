@@ -60,9 +60,11 @@
     import subTitle from "../../components/subTitle";
     import pagination from "../../components/pagination";
     import mixin from "../../util/mixin";
+    import filters from "../../util/filters";
     export default {
         name: "prop",
         mixins: [mixin],
+        filters: filters,
         components: {
             subTitle,
             pagination
