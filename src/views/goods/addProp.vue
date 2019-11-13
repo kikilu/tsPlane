@@ -68,27 +68,42 @@
             subTitle
         },
         data() {
+            let validProp = (item, value, callback) => {
+                console.log("validProp");
+                console.log(callback);
+                if (this.dynamicTags.length == 0) {
+                    callback("请添加属性值");
+                } else if (this.ruleForm.propertySelect == 0 && this.dynamicTags.length > 1) {
+                    callback(new Error("唯一属性只能添加一个属性值"));
+                } else {
+                    callback();
+                }
+            };
             return {
+                inputValue: "",
                 inputVisible: false,
+                dynamicTags: [],
                 typeList: [],
                 ruleForm: {
                     propertyName: '',
                     styleId: '',
-                    date1: '',
-                    date2: '',
-                    delivery: false,
-                    type: [],
-                    resource: '',
-                    desc: '',
-                    propertySelect: {},
-                    propertySort: ""
+                    propertySelect: 1,
+                    propertyList: "",
+                    propertyOrder: ""
                 },
-                dynamicTags: [],
-                inputValue: "",
                 rules: {
-
+                    propertyName: [
+                        {required: true, message: "请输入属性名称", trigger: "blur"},
+                        {max: 20, message: "长度必须小于20个字符", trigger: "blur"}
+                    ],
+                    styleId: [
+                        {required: true, message: "请选择商品类型", trigger: "change"},
+                    ],
+                    propertyList: [
+                        {validator: validProp, required: true, trigger: "change"}
+                    ]
                 }
-            }
+            };
         },
         methods: {
             handleClose(tag) {
@@ -136,8 +151,21 @@
             }
         },
         mounted() {
-            //有bug，写不下去了。。。
-            this.$http.post("merchantGoodsStyle/merchant_goods_type_list");
+            this.$http.post("merchantGoodsStyle/merchant_goods_type_list").then(res => {
+                this.typeList = res;
+                if (this.$route.query.id) {
+                    this.isAdd = false;
+                    this.$http.post("merchantGoodsProperty/merchant_goods_type_by_id", {id: this.$route.query.id}).then(res => {
+                        this.$set(this.ruleForm, 'propertyName', res.propertyName);
+                        this.$set(this.ruleForm, 'styleId', res.styleId);
+                        this.$set(this.ruleForm, 'propertySelect', res.propertySelect);
+                        this.$set(this.ruleForm, 'propertyOrder', res.propertyOrder);
+                        if (res.propertyList.length > 0) {
+                            this.dynamicTags = res.propertyList.split(",");
+                        }
+                    });
+                }
+            });
         }
     }
 </script>
