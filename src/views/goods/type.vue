@@ -34,6 +34,23 @@
                     </template>
                 </el-table-column>
             </el-table>
+            <pagination :is-batch="false" @next="next" :total="total" :page-size="pageSize"></pagination>
+            <el-dialog
+                    title="添加类型"
+                    :visible.sync="dialogVisible"
+                    :append-to-body="true"
+                    :pageSize="pageSize"
+            >
+                <el-form ref="ruleForm" :model="ruleForm" label-width="100px" class="form" :rules="rules">
+                    <el-form-item label="类型名称：" prop="styleName">
+                        <el-input v-model="ruleForm.styleName"></el-input>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
+                </span>
+            </el-dialog>
         </div>
     </div>
 </template>
