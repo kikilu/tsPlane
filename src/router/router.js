@@ -84,7 +84,7 @@ export default new Router({
                 },
                 {
                     path: '/goods/type/addParams',   //商品类型属性
-                    name: 'params',
+                    name: 'addParams',
                     component: resolve => {require(['_V/goods/addParams'], resolve)}
                 },
                 {

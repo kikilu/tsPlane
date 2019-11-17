@@ -23,6 +23,9 @@ export default {
             })
         },
         afterAddEdit() {
+            setTimeout(() => {
+                this.back();
+            }, 500);
         },
         //返回上个页面
         back() {
@@ -186,6 +189,12 @@ export default {
         },
         showSearch() {
             this.visibleSearch = !this.visibleSearch;
+        },
+        setAttr(target, origin) {
+            let keys = Object.keys(target);
+            for (let i = 0; i < keys.length; i++) {
+                this.$set(target, keys[i], origin[keys[i]]);
+            }
         }
     }
 }

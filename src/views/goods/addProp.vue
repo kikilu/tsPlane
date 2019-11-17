@@ -42,7 +42,7 @@
                             @keyup.enter.native="handleInputConfirm"
                             @blur="handleInputConfirm"
                     ></el-input>
-                    <el-button type="primary" v-else class="button-new-tag" size="small" @click="showInput">添加属性值</el-button>
+                    <el-button v-else class="button-new-tag" size="small" @click="showInput">添加属性值</el-button>
                 </el-form-item>
                 <el-form-item label="属性排序：">
                     <el-input v-model="ruleForm.propertySort" placeholder="请输入属性排序"></el-input>
@@ -69,10 +69,10 @@
         },
         data() {
             let validProp = (item, value, callback) => {
-                console.log("validProp");
-                console.log(callback);
+                // console.log("validProp");
+                // console.log(callback);
                 if (this.dynamicTags.length == 0) {
-                    callback("请添加属性值");
+                    callback(new Error("请添加属性值"));
                 } else if (this.ruleForm.propertySelect == 0 && this.dynamicTags.length > 1) {
                     callback(new Error("唯一属性只能添加一个属性值"));
                 } else {
@@ -141,30 +141,25 @@
                         return false;
                     }
                 });
-            },
-            addEdit(url, data) {
-                this.$http.post(url, data).then(() => {
-                    this.back();
-                }, err => {
-                    this.$msgErr(err.msg);
-                });
             }
         },
         mounted() {
             this.$http.post("merchantGoodsStyle/merchant_goods_type_list").then(res => {
                 this.typeList = res;
-                if (this.$route.query.id) {
-                    this.isAdd = false;
-                    this.$http.post("merchantGoodsProperty/merchant_goods_type_by_id", {id: this.$route.query.id}).then(res => {
-                        this.$set(this.ruleForm, 'propertyName', res.propertyName);
-                        this.$set(this.ruleForm, 'styleId', res.styleId);
-                        this.$set(this.ruleForm, 'propertySelect', res.propertySelect);
-                        this.$set(this.ruleForm, 'propertyOrder', res.propertyOrder);
-                        if (res.propertyList.length > 0) {
-                            this.dynamicTags = res.propertyList.split(",");
-                        }
-                    });
-                }
+                // console.log(res);
+                // if (this.$route.query.id) {
+                //     this.isAdd = false;
+                //     this.$http.post("merchantGoodsProperty/merchant_goods_type_by_id", {id: this.$route.query.id}).then(res => {
+                //         console.log(res);
+                //         this.$set(this.ruleForm, 'propertyName', res.propertyName);
+                //         this.$set(this.ruleForm, 'styleId', res.styleId);
+                //         this.$set(this.ruleForm, 'propertySelect', res.propertySelect);
+                //         this.$set(this.ruleForm, 'propertyOrder', res.propertyOrder);
+                //         if (res.propertyList.length > 0) {
+                //             this.dynamicTags = res.propertyList.split(",");
+                //         }
+                //     });
+                // }
             });
         }
     }
