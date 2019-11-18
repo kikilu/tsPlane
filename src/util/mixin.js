@@ -78,6 +78,7 @@ export default {
         },
         // 全选change事件
         handleChangeAll(val) {
+            console.log(val);
             if (val) {
                 this.$refs.table.toggleAllSelection();
             } else {
@@ -193,6 +194,7 @@ export default {
         setAttr(target, origin) {
             let keys = Object.keys(target);
             for (let i = 0; i < keys.length; i++) {
+                // console.log(keys[i] + ":" + typeof origin[keys[i]]);
                 this.$set(target, keys[i], origin[keys[i]]);
             }
         }

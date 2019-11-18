@@ -7,15 +7,17 @@
                     <el-input v-model="ruleForm.paramName" placeholder="请输入参数名称"></el-input>
                 </el-form-item>
                 <el-form-item label="商品类型：" prop="styleId">
-                    <el-select v-model="ruleForm.styleId" placeholder="请选择商品类型" class="search-input">
-                        <el-option :value="item.id" :label="item.styleName" v-for="item in typeList"></el-option>
+                    <!--当v-model绑定得值得类型和label绑定的值的类型不一致时，被选中的el-radio不会显示-->
+                    <el-select v-model="ruleForm.styleId" label="" placeholder="请选择商品类型" class="search-input">
+                        <el-option :value="item.id.toString()" :label="item.styleName" v-for="item in typeList"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="参数是否可选：" prop="paramSelect">
+                    <!--当v-model绑定得值得类型和label绑定的值的类型不一致时，被选中的el-radio不会显示-->
                     <el-radio-group v-model="ruleForm.paramSelect" :disabled="!isAdd">
-                        <el-radio :label="0">唯一属性</el-radio>
-                        <el-radio :label="1">单选属性</el-radio>
-                        <el-radio :label="2">复选属性</el-radio>
+                        <el-radio :label="'0'">唯一属性</el-radio>
+                        <el-radio :label="'1'">单选属性</el-radio>
+                        <el-radio :label="'2'">复选属性</el-radio>
                     </el-radio-group>
                     <p class="form-tips">选择“单选/复选属性”时，可以对商品该属性设置多个值，同时还能对不同属性值指定不同的价格加价，用户购买商品时需要选定具体的属性值。选择“唯一属性”时，商品的该属性值只能设置一个值，用户只能查看该值</p>
                 </el-form-item>
@@ -135,6 +137,7 @@
         mounted() {
             this.$http.post("merchantGoodsStyle/merchant_goods_type_list").then(res => {
                 this.typeList = res;
+                // console.log(res);
                 if (this.$route.query.id) {
                     // console.log(this.$route.query.id);
                     this.isAdd = false;
@@ -142,12 +145,13 @@
                     this.$http.post("merchantGoodsParam/merchant_goods_type_by_id", {
                         id: this.$route.query.id
                     }).then(res => {
-                        // console.log("res:" + res);
-                        // this.$set(this.ruleForm, "paramName", res.paramName);
-                        // this.$set(this.ruleForm, "styleId", res.styleId);
+                        // console.log(res);
                         this.setAttr(this.ruleForm, res);
+                        res.paramList.map(item => {
+                            this.dynamicTags.push(item.styleName);
+                        })
                     }, err => {
-                        console.log("err:" + err);
+                        this.$msgErr(err.msg);
                     });
                 }
             });

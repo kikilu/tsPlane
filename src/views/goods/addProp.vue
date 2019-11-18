@@ -17,10 +17,10 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="属性是否可选">
-                    <el-radio-group v-model="ruleForm.propertySelect" prop="propertySelect">
-                        <el-radio :label="0" disabled>唯一属性</el-radio>
-                        <el-radio :label="1" disabled>单选属性</el-radio>
-                        <el-radio :label="2" disabled>复选属性</el-radio>
+                    <el-radio-group v-model="ruleForm.propertySelect" :disabled="!isAdd" prop="propertySelect">
+                        <el-radio :label="0">唯一属性</el-radio>
+                        <el-radio :label="1">单选属性</el-radio>
+                        <el-radio :label="2">复选属性</el-radio>
                     </el-radio-group>
                     <p class="form-tips">选择“单选/复选属性”时，可以对商品该属性设置多个值，同时还能对不同属性值指定不同的价格加价，用户购买商品时需要选定具体的属性值。选择“唯一属性”时，商品的该属性值只能设置一个值，用户只能查看该值</p>
                 </el-form-item>
@@ -89,7 +89,8 @@
                     styleId: '',
                     propertySelect: 1,
                     propertyList: "",
-                    propertyOrder: ""
+                    propertyOrder: "",
+                    propertySort: ""
                 },
                 rules: {
                     propertyName: [
@@ -146,6 +147,7 @@
         mounted() {
             this.$http.post("merchantGoodsStyle/merchant_goods_type_list").then(res => {
                 this.typeList = res;
+                // 不考虑属性编辑功能
                 // console.log(res);
                 // if (this.$route.query.id) {
                 //     this.isAdd = false;

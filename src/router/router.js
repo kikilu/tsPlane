@@ -98,6 +98,11 @@ export default new Router({
                     component: resolve => {require(['_V/goods/brand'], resolve)}
                 },
                 {
+                    path: '/goods/brand/addBrand',
+                    name: 'addBrand',
+                    component: resolve => {require(['_V/goods/addBrand'], resolve)}
+                },
+                {
                     path: '/goods/image',
                     name: 'image',
                     component: resolve => {require(['_V/goods/image'], resolve)}
