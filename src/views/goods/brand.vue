@@ -17,7 +17,7 @@
                             <i class="el-icon-arrow-up"></i>
                             收起筛选
                         </span>
-                        <el-button>查询结果</el-button>
+                        <el-button @click="search">查询结果</el-button>
                     </div>
                 </div>
                 <div class="flex h-center" v-show="visibleSearch">
@@ -123,6 +123,7 @@
                     this.loading = false;
                 });
             },
+            // 删除被选中项
             remove(id) {
                 this.$confirm("确认删除吗").then(() => {
                     this.$http.post("merchant_goods_brand/delete_batch", id).then(() => {
@@ -133,10 +134,13 @@
                     })
                 })
             },
-            batchShow(chedkItemId, type) {
+            // 隐藏被选中项
+            batchShow(checkItemId, type) {
+                console.log(checkItemId);
+                console.log(type);
                 this.$http.post("merchant_goods_brand/hidden_batch", {
                     type: type,
-                    ids: chedkItemId
+                    ids: checkItemId
                 }).then(() => {
                     this.getList();
                     this.$msgSuc("操作成功");
@@ -145,8 +149,23 @@
                 });
             },
             handleShow($event, row) {
-                console.log($event);
+                console.log("$event: " + $event);
                 console.log(row);
+                let form = {
+                    id: row.id,
+                    name: row.name,
+                    logo: row.logo,
+                    areaLogo: row.areaLogo,
+                    story: row.story,
+                    isShow: $event,
+                    sorting: row.sorting,
+                    firstChar: row.firstChar
+                };
+                this.$http.post("merchant_goods_brand/update", form).then(() => {
+                    this.$msgSuc("操作成功");
+                }, err => {
+                    this.$msgErr(err.msg);
+                })
             }
         },
         mounted() {
