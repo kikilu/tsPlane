@@ -10,7 +10,7 @@
                     <el-input v-model="ruleForm.firstChar" placeholder="请输入品牌首字母"></el-input>
                 </el-form-item>
                 <el-form-item label="品牌LOGO" prop="logo">
-                    <img :src="ruleForm.logo" alt="" class="form-img" v-if="ruleForm.logo">
+                    <img ref="imgLogo" :src="ruleForm.logo" alt="" class="form-img" v-if="ruleForm.logo">
                     <div class="upload-btn-wrap">
                         <el-button type="primary" size="small">上传图片</el-button>
                         <input @change="uploadLogo" type="file" accept="image/jpeg, image/png" class="upload-input">
@@ -21,7 +21,7 @@
                     <img :src="ruleForm.areaLogo" alt="" class="form-img" v-if="ruleForm.logo">
                     <div class="upload-btn-wrap">
                         <el-button type="primary" size="small">上传图片</el-button>
-                        <input @change="uploadLogo" type="file" accept="image/jpeg, image/png" class="upload-input">
+                        <input @change="uploadAreaLogo" type="file" accept="image/jpeg, image/png" class="upload-input">
                         <p>只能上传jpeg/png格式的图片</p>
                     </div>
                 </el-form-item>
@@ -31,7 +31,7 @@
                 <el-form-item label="品牌故事">
                     <el-input v-model="ruleForm.story" type="textarea" placeholder="请输入品牌故事"></el-input>
                 </el-form-item>
-                <el-form-item label="是否显示">
+                <el-form-item label="是否显示" prop="isShow">
                     <el-radio-group v-model="ruleForm.isShow">
                       <el-radio :label="1">是</el-radio>
                       <el-radio :label="0">否</el-radio>
@@ -39,8 +39,8 @@
                     <p>当品牌下还没有商品的时候，分类页的品牌区将不会显示该品牌。</p>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary">提交</el-button>
-                    <el-button>返回</el-button>
+                    <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+                    <el-button @click="back">返回</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -59,6 +59,7 @@
         mixins: [mixin],
         data() {
             let validLogo = (item, value, callback) => {
+                debugger
                 if (!this.ruleForm.logo) {
                     callback(new Error("请上传品牌logo"));
                 } else {
@@ -86,10 +87,41 @@
             };
         },
         methods: {
-            uploadLogo() {
-
+            // 上传品牌LOGO
+            uploadLogo(file) {
+                // console.log(file);
+                this.uploadFile(file).then(res => {
+                    this.$set(this.ruleForm, "logo", res.imgUrl);
+                });
             },
-
+            // 上传品牌专区大图
+            uploadAreaLogo(file) {
+                this.uploadFile(file).then(res => {
+                    this.$set(this.ruleForm, "areaLogo", res.imgUrl);
+                });
+            },
+            submitForm(form) {
+                this.$refs[form].validate(valid => {
+                    if (valid) {
+                        if (this.isAdd) {
+                            this.addEdit("merchant_goods_brand/add");
+                        } else {
+                            this.$set(this.ruleForm, "id", this.$route.query.id);
+                            this.addEdit("merchant_goods_brand/update");
+                        }
+                    } else {
+                        return false;
+                    }
+                });
+            },
+            addEdit(url) {
+                this.$http.post(url, this.ruleForm).then(() => {
+                    this.$msgSuc("提交成功");
+                    this.back();
+                }, err => {
+                    this.$msgErr(err.msg);
+                });
+            }
         },
         mounted() {
 
@@ -99,8 +131,8 @@
                 this.$http.post("merchant_goods_brand/query_by_id", {id: this.$route.query.id}, {type: "form"}).then(res => {
                     this.setAttr(this.ruleForm, res);
                 }, err => {
-                    console.log(err);
-                })
+                    this.$msgErr(err.msg);
+                });
             }
         }
     }
