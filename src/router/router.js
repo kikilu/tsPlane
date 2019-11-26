@@ -106,6 +106,16 @@ export default new Router({
                     path: '/goods/image',
                     name: 'image',
                     component: resolve => {require(['_V/goods/image'], resolve)}
+                },
+                {
+                    path: '/goods/image/addImage',
+                    name: 'addImage',
+                    component: resolve => {require(['_V/goods/addImage'], resolve)}
+                },
+                {
+                    path: '/goods/image/:id',
+                    name: 'imageList',
+                    component: resolve => {require(['_V/goods/imageList'], resolve)}
                 }
             ]
         }
