@@ -65,7 +65,7 @@
                 <el-table-column label="操作">
                     <template slot-scope="scope">
                         <span class="table-btn" @click="$router.push('/goods/image/' + scope.row.id)">查看</span>
-                        <span class="table-btn" @click="$router.push('goods/image/addImage?id=' + scope.row.id)">编辑</span>
+                        <span class="table-btn" @click="$router.push('/goods/image/addImage?id=' + scope.row.id)">编辑</span>
                         <span class="table-btn" @click="remove([scope.row.id])">删除</span>
                     </template>
                 </el-table-column>
